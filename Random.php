@@ -31,18 +31,23 @@ class Random {
 	 * Generate random data based on the provided parameters
 	 * 
 	 * @param int $length Amount of characters of generated data
-	 * @param int $packSize Amount of bytes for pack function
-	 * @param string $packFormat Definition of format for pack function
+	 * @param int $packSize Amount of bytes for unpack function
+	 * @param string $packFormat Definition of format for unpack function
+	 * @param callable $callback a function to manipulated unpacked value
 	 * @return boolean|string The generated string
 	 */
-	protected static function getRandomData($length, $packSize, $packFormat) {
+	protected static function getRandomData($length, $packSize, $packFormat, $callback = null) {
 		$data = '';
 		while(strlen($data) < $length) {
 			$randomBytes = self::getRandomBytes($packSize);
 			if ($randomBytes === false) {
 				return false;
 			}
-			$data .= unpack($packFormat, $randomBytes)[1];
+			$value = unpack($packFormat, $randomBytes)[1];
+			if (is_callable($callback)) {
+				$value = call_user_func($callback, $value);
+			}
+			$data .= $value;
 		}
 		return substr($data, 0, $length);
 	}
@@ -54,7 +59,17 @@ class Random {
 	 * @return string The string representation of generated integer
 	 */
 	public static function integer($length) {
-		return self::getRandomData($length, 4, 'I');
+		return self::getRandomData($length, 4, 'I', 'self::integerCallback');
+	}
+
+	/**
+	 * Remove digits that don't reache the 0-9 range and zero fill to 9 digits
+	 * 
+	 * @param string $value
+	 * @return string processed value
+	 */
+	private static function integerCallback($value) {
+		return str_pad(substr($value, -9), 9, 0, STR_PAD_LEFT);
 	}
 
 	/**
