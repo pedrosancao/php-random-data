@@ -20,7 +20,7 @@ Generate data in these formats:
 
 - create fallback for Windows systems
 - add new types (raw, text, dummy base64, etc.)
-- add compliance with [PSR-4](http://www.php-fig.org/psr/psr-4/) (or [PST-0](http://www.php-fig.org/psr/psr-0/)) autoload standards
+- add compliance with [PSR-4](http://www.php-fig.org/psr/psr-4/) (or [PSR-0](http://www.php-fig.org/psr/psr-0/)) autoload standards
 - add composer
 
 ## Licence
