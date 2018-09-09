@@ -34,7 +34,6 @@ $hex = \PedroSancao\Random::hex($length);
 
 ## To do list
 
-- create fallback for Windows systems
 - add new types (text, dummy base64, etc.)
 
 ## Licence
