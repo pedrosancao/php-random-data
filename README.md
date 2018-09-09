@@ -1,27 +1,41 @@
 # Simple high entropy random data generator
 
-This small library generates high entropy data from /dev/urandom
+This small library generates high entropy random data from /dev/urandom
 
-Current supported only UNIX based systems
+Aimed to UNIX based systems but has fallbacks for other systems
 
 ## Formats
 
 Generate data in these formats:
 
+- raw
 - integer
 - hexadecimal
 
+## Requirements
+
+php >= 5.4
+
+## Installation
+
+Preferable use composer
+
+```sh
+composer require pedrosancao/php-random-data
+```
+
 ## Usage
 
-- include Random.php
-- run `Random::int($length)` or `Random::hex($length)`
+```php
+$bytes = \PedroSancao\Random::raw($length);
+$int = \PedroSancao\Random::int($length);
+$hex = \PedroSancao\Random::hex($length);
+```
 
 ## To do list
 
 - create fallback for Windows systems
-- add new types (raw, text, dummy base64, etc.)
-- add compliance with [PSR-4](http://www.php-fig.org/psr/psr-4/) (or [PSR-0](http://www.php-fig.org/psr/psr-0/)) autoload standards
-- add composer
+- add new types (text, dummy base64, etc.)
 
 ## Licence
 

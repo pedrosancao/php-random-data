@@ -1,11 +1,9 @@
 <?php
 
-/**
- * @author   Pedro Sanção <pedro at sancao dot co>
- * @license  MIT, see LICENCE.
- * @version  Beta
- */
-class Random {
+namespace PedroSancao;
+
+class Random
+{
 
 	/**
 	 * Read bytes from /dev/urandom
@@ -14,17 +12,21 @@ class Random {
 	 * @return boolean|string A string of binary data read from /dev/urandom
 	 * or false on errors
 	 */
-	protected static function getRandomBytes($length) {
-		try {
-			$handle = fopen('/dev/urandom', 'rb');
-			if ($handle !== false) {
-				$read = fread($handle, $length);
-				fclose($handle);
-				return $read;
-			}
-		} catch (Exception $e) {
-		}
-		return false;
+	protected static function getRandomBytes($length)
+    {
+        if (is_readable('/dev/urandom')) {
+            $handle = fopen('/dev/urandom', 'rb');
+            $read = fread($handle, $length);
+            fclose($handle);
+            return $read;
+        }
+        if (function_exists('random_bytes')) {
+            return random_bytes($length);
+        }
+        if (function_exists('mcrypt_create_iv')) {
+            return mcrypt_create_iv($length, MCRYPT_DEV_URANDOM);
+        }
+		return pack('I', mt_rand(0, mt_getrandmax()));
 	}
 
 	/**
@@ -36,13 +38,11 @@ class Random {
 	 * @param callable $callback a function to manipulated unpacked value
 	 * @return boolean|string The generated string
 	 */
-	protected static function getRandomData($length, $packSize, $packFormat, $callback = null) {
+	protected static function getRandomData($length, $packSize, $packFormat, $callback = null)
+    {
 		$data = '';
 		while(strlen($data) < $length) {
 			$randomBytes = self::getRandomBytes($packSize);
-			if ($randomBytes === false) {
-				return false;
-			}
 			$value = unpack($packFormat, $randomBytes)[1];
 			if (is_callable($callback)) {
 				$value = call_user_func($callback, $value);
@@ -52,23 +52,40 @@ class Random {
 		return substr($data, 0, $length);
 	}
 
+    /**
+     * Gerate a string of raw random bytes
+     * 
+     * @param int $length
+     * @return string The strng containg random bytes
+     */
+    public static function raw($length)
+    {
+		$data = '';
+		while(strlen($data) < $length) {
+			$data .= self::getRandomBytes($length);
+		}
+		return substr($data, 0, $length);
+    }
+    
 	/**
 	 * Generate a random integer
 	 * 
 	 * @param int $length
 	 * @return string The string representation of generated integer
 	 */
-	public static function integer($length) {
+	public static function integer($length)
+    {
 		return self::getRandomData($length, 4, 'I', 'self::integerCallback');
 	}
 
 	/**
-	 * Remove digits that don't reache the 0-9 range and zero fill to 9 digits
+	 * Ensures a 9 digits number, as string
 	 * 
 	 * @param string $value
 	 * @return string processed value
 	 */
-	private static function integerCallback($value) {
+	private static function integerCallback($value)
+    {
 		return str_pad(substr($value, -9), 9, 0, STR_PAD_LEFT);
 	}
 
@@ -78,7 +95,8 @@ class Random {
 	 * @param int $length
 	 * @return string The string representation of generated hexadecimal
 	 */
-	public static function hex($length) {
+	public static function hex($length)
+    {
 		return self::getRandomData($length, ceil($length / 2), 'h*');
 	}
 
